@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DS Project Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-soft: #1f2937;
+      --border: #334155;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.16);
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.08), transparent 28%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.9rem, 3vw, 3rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.98), rgba(15, 23, 42, 0.98));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+
+    .panel p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    button,
+    textarea {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+    }
+
+    input[type="range"] {
+      padding: 0;
+    }
+
+    button {
+      cursor: pointer;
+      border-color: rgba(56, 189, 248, 0.5);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.26), rgba(2, 132, 199, 0.34));
+      font-weight: 600;
+      transition: transform 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(56, 189, 248, 0.9);
+    }
+
+    .inline-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .table-wrap {
+      max-height: 320px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.7);
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.7);
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #162033;
+      z-index: 1;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.78);
+    }
+
+    .risk-low {
+      color: var(--good);
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    .risk-medium {
+      color: var(--warn);
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+
+    .risk-high {
+      color: var(--bad);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .probability {
+      margin-top: 14px;
+      background: rgba(148, 163, 184, 0.12);
+      border-radius: 999px;
+      height: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .probability-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--good), var(--warn), var(--bad));
+      transition: width 180ms ease;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.72);
+    }
+
+    .metric-card strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-top: 8px;
+    }
+
+    .message {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.18);
+      color: var(--muted);
+      min-height: 46px;
+    }
+
+    .error {
+      border-color: rgba(239, 68, 68, 0.28);
+      background: rgba(239, 68, 68, 0.08);
+      color: #fecaca;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      border-bottom: 1px dashed rgba(51, 65, 85, 0.65);
+      padding-bottom: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Forecasting and Churn Risk Dashboard</h1>
+      <p>
+        Monitor daily supermarket revenue forecasts, score customer churn risk, and watch system health from a single lightweight interface backed by the FastAPI service.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Sales Forecast Panel</h2>
+        <p>Generate the next 1 to 90 days of revenue forecasts from the trained ARIMA model.</p>
+        <div class="inline-meta">
+          <span>Forecast horizon</span>
+          <strong id="forecast-days-label">30 days</strong>
+        </div>
+        <input id="forecast-days" type="range" min="1" max="90" value="30" />
+        <div style="margin-top: 14px;">
+          <button id="forecast-button">Generate Forecast</button>
+        </div>
+        <div id="forecast-message" class="message">Waiting for a forecast request.</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Predicted Revenue</th>
+              </tr>
+            </thead>
+            <tbody id="forecast-table-body">
+              <tr>
+                <td colspan="2">No forecast generated yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>Churn Prediction Panel</h2>
+        <p>Submit customer attributes to receive churn probability, class prediction, and a risk level.</p>
+        <div class="row">
+          <div>
+            <label for="tenure">Tenure</label>
+            <input id="tenure" type="number" min="0" value="12" />
+          </div>
+          <div>
+            <label for="monthly-charges">Monthly Charges</label>
+            <input id="monthly-charges" type="number" min="0" step="0.01" value="79" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="total-charges">Total Charges</label>
+            <input id="total-charges" type="number" min="0" step="0.01" value="1550" />
+          </div>
+          <div>
+            <label for="senior-citizen">Senior Citizen</label>
+            <select id="senior-citizen">
+              <option value="0">0</option>
+              <option value="1">1</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="contract">Contract</label>
+            <select id="contract">
+              <option>Month-to-month</option>
+              <option>One year</option>
+              <option>Two year</option>
+            </select>
+          </div>
+          <div>
+            <label for="payment-method">Payment Method</label>
+            <select id="payment-method">
+              <option>Bank Transfer</option>
+              <option>Credit Card</option>
+              <option>Electronic Check</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="paperless-billing">Paperless Billing</label>
+            <select id="paperless-billing">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: end;">
+            <button id="churn-button">Predict Churn Risk</button>
+          </div>
+        </div>
+        <div id="churn-message" class="message">Waiting for a churn prediction request.</div>
+        <div class="probability">
+          <div id="probability-bar" class="probability-bar"></div>
+        </div>
+        <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <strong id="probability-text">Probability: --</strong>
+          <span id="risk-pill" class="pill">Risk Level: --</span>
+        </div>
+      </article>
+
+      <article class="panel" style="grid-column: 1 / -1;">
+        <h2>System Status Panel</h2>
+        <p>Auto-refreshes every 30 seconds to show API health, request volume, average latency, and endpoint usage.</p>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span>API Status</span>
+            <strong id="health-status">Loading...</strong>
+          </div>
+          <div class="metric-card">
+            <span>Total Requests</span>
+            <strong id="total-requests">0</strong>
+          </div>
+          <div class="metric-card">
+            <span>Average Latency</span>
+            <strong id="avg-latency">0 ms</strong>
+          </div>
+          <div class="metric-card">
+            <span>Error Rate</span>
+            <strong id="error-rate">0%</strong>
+          </div>
+        </div>
+        <div class="status-list" id="status-list"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    const forecastDays = document.getElementById("forecast-days");
+    const forecastDaysLabel = document.getElementById("forecast-days-label");
+    const forecastButton = document.getElementById("forecast-button");
+    const forecastTableBody = document.getElementById("forecast-table-body");
+    const forecastMessage = document.getElementById("forecast-message");
+
+    const churnButton = document.getElementById("churn-button");
+    const churnMessage = document.getElementById("churn-message");
+    const probabilityBar = document.getElementById("probability-bar");
+    const probabilityText = document.getElementById("probability-text");
+    const riskPill = document.getElementById("risk-pill");
+
+    function setMessage(element, text, isError = false) {
+      element.textContent = text;
+      element.classList.toggle("error", isError);
+    }
+
+    forecastDays.addEventListener("input", () => {
+      forecastDaysLabel.textContent = `${forecastDays.value} days`;
+    });
+
+    async function generateForecast() {
+      setMessage(forecastMessage, "Requesting forecast...");
+      forecastButton.disabled = true;
+      try {
+        const response = await fetch(`${API_BASE}/forecast/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ steps: Number(forecastDays.value) })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || "Forecast request failed.");
+        }
+
+        forecastTableBody.innerHTML = "";
+        data.forecast_dates.forEach((date, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${date}</td><td>${data.forecast_values[index].toFixed(2)}</td>`;
+          forecastTableBody.appendChild(row);
+        });
+
+        const metrics = data.model_metrics || {};
+        const metricsText = `Forecast ready. MAE: ${metrics.MAE ?? "--"}, RMSE: ${metrics.RMSE ?? "--"}, MAPE: ${metrics.MAPE ?? "--"}%.`;
+        setMessage(forecastMessage, metricsText);
+      } catch (error) {
+        setMessage(forecastMessage, error.message, true);
+      } finally {
+        forecastButton.disabled = false;
+      }
+    }
+
+    function currentChurnPayload() {
+      return {
+        tenure: Number(document.getElementById("tenure").value),
+        monthly_charges: Number(document.getElementById("monthly-charges").value),
+        total_charges: Number(document.getElementById("total-charges").value),
+        contract: document.getElementById("contract").value,
+        payment_method: document.getElementById("payment-method").value,
+        paperless_billing: document.getElementById("paperless-billing").value,
+        senior_citizen: Number(document.getElementById("senior-citizen").value)
+      };
+    }
+
+    function applyRiskLevel(level) {
+      riskPill.textContent = `Risk Level: ${level}`;
+      riskPill.className = "pill";
+      if (level === "Low") riskPill.classList.add("risk-low");
+      if (level === "Medium") riskPill.classList.add("risk-medium");
+      if (level === "High") riskPill.classList.add("risk-high");
+    }
+
+    async function predictChurn() {
+      setMessage(churnMessage, "Scoring churn risk...");
+      churnButton.disabled = true;
+      try {
+        const response = await fetch(`${API_BASE}/churn/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(currentChurnPayload())
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || "Churn prediction failed.");
+        }
+
+        const probabilityPercent = (data.churn_probability * 100).toFixed(2);
+        probabilityBar.style.width = `${probabilityPercent}%`;
+        probabilityText.textContent = `Probability: ${probabilityPercent}%`;
+        applyRiskLevel(data.risk_level);
+        setMessage(
+          churnMessage,
+          `Prediction complete. Class: ${data.churn_prediction}, risk level: ${data.risk_level}.`
+        );
+      } catch (error) {
+        probabilityBar.style.width = "0%";
+        probabilityText.textContent = "Probability: --";
+        applyRiskLevel("--");
+        setMessage(churnMessage, error.message, true);
+      } finally {
+        churnButton.disabled = false;
+      }
+    }
+
+    async function refreshSystemStatus() {
+      try {
+        const [healthResponse, metricsResponse] = await Promise.all([
+          fetch(`${API_BASE}/health`),
+          fetch(`${API_BASE}/metrics`)
+        ]);
+        const healthData = await healthResponse.json();
+        const metricsData = await metricsResponse.json();
+
+        document.getElementById("health-status").textContent = healthData.status;
+        document.getElementById("total-requests").textContent = metricsData.total_requests;
+        document.getElementById("avg-latency").textContent = `${metricsData.avg_latency_ms.toFixed(2)} ms`;
+        document.getElementById("error-rate").textContent = `${(metricsData.error_rate * 100).toFixed(2)}%`;
+
+        const statusList = document.getElementById("status-list");
+        const endpointSummary = Object.entries(metricsData.requests_by_endpoint)
+          .map(([endpoint, count]) => `<div class="status-line"><span>${endpoint}</span><strong>${count}</strong></div>`)
+          .join("");
+
+        statusList.innerHTML = `
+          <div class="status-line"><span>Forecast Model Loaded</span><strong>${healthData.models_loaded.forecast}</strong></div>
+          <div class="status-line"><span>Churn Model Loaded</span><strong>${healthData.models_loaded.churn}</strong></div>
+          <div class="status-line"><span>Uptime Seconds</span><strong>${healthData.uptime_seconds.toFixed(2)}</strong></div>
+          ${endpointSummary || '<div class="status-line"><span>Endpoint Usage</span><strong>No requests yet</strong></div>'}
+        `;
+      } catch (error) {
+        document.getElementById("health-status").textContent = "Unavailable";
+      }
+    }
+
+    forecastButton.addEventListener("click", generateForecast);
+    churnButton.addEventListener("click", predictChurn);
+
+    refreshSystemStatus();
+    setInterval(refreshSystemStatus, 30000);
+  </script>
+</body>
+</html>
