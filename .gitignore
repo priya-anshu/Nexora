@@ -5,3 +5,4 @@ __pycache__/
 venv/
 data/processed/
 monitoring/metrics_store.json
+scripts/generate_project_report.py
